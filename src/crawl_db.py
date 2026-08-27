@@ -468,15 +468,17 @@ def get_crawl_by_id(crawl_id):
         print(f"Error fetching crawl: {e}")
         return None
 
-def get_user_crawls(user_id, limit=50, offset=0, status_filter=None):
-    """Get all crawls for a user"""
+def get_user_crawls(user_id, limit=50, offset=0, status_filter=None, is_admin=False):
+    """Get all crawls for a user. Admins see crawls from all users."""
     try:
         with get_db() as conn:
             cursor = conn.cursor()
-
-            query = 'SELECT * FROM crawls WHERE user_id = ?'
-            params = [user_id]
-
+            if is_admin:
+                query = 'SELECT * FROM crawls WHERE 1=1'
+                params = []
+            else:
+                query = 'SELECT * FROM crawls WHERE user_id = ?'
+                params = [user_id]
             if status_filter:
                 query += ' AND status = ?'
                 params.append(status_filter)
@@ -642,12 +644,15 @@ def cleanup_old_crawls(days=90):
         print(f"Error cleaning up old crawls: {e}")
         return 0
 
-def get_crawl_count(user_id):
-    """Get total number of crawls for a user"""
+def get_crawl_count(user_id, is_admin=False):
+    """Get total number of crawls for a user. Admins get count across all users."""
     try:
         with get_db() as conn:
             cursor = conn.cursor()
-            cursor.execute('SELECT COUNT(*) as count FROM crawls WHERE user_id = ?', (user_id,))
+            if is_admin:
+                cursor.execute('SELECT COUNT(*) as count FROM crawls')
+            else:
+                cursor.execute('SELECT COUNT(*) as count FROM crawls WHERE user_id = ?', (user_id,))
             result = cursor.fetchone()
             return result['count'] if result else 0
     except Exception as e:
