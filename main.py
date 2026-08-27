@@ -1063,17 +1063,16 @@ def resume_crawl():
 @app.route('/api/crawls/list')
 @login_required
 def list_crawls():
-    """Get all crawls for current user"""
+    """Get all crawls for current user. Admins see all users' crawls."""
     try:
         user_id = session.get('user_id')
+        is_admin = session.get('tier') == 'admin'
         from src.crawl_db import get_user_crawls, get_crawl_count
-
         limit = request.args.get('limit', 50, type=int)
         offset = request.args.get('offset', 0, type=int)
         status_filter = request.args.get('status')
-
-        crawls = get_user_crawls(user_id, limit=limit, offset=offset, status_filter=status_filter)
-        total_count = get_crawl_count(user_id)
+        crawls = get_user_crawls(user_id, limit=limit, offset=offset, status_filter=status_filter, is_admin=is_admin)
+        total_count = get_crawl_count(user_id, is_admin=is_admin)
 
         return jsonify({
             'success': True,
