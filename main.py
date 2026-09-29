@@ -1096,7 +1096,7 @@ def get_crawl(crawl_id):
             return jsonify({'success': False, 'error': 'Crawl not found'}), 404
 
         # Check ownership (guests have user_id = None)
-        if user_id and crawl.get('user_id') != user_id:
+        if user_id and crawl.get('user_id') != user_id and session.get('tier') != 'admin':
             return jsonify({'success': False, 'error': 'Unauthorized'}), 403
 
         # Load all data
@@ -1130,7 +1130,7 @@ def load_crawl_into_session(crawl_id):
             return jsonify({'success': False, 'error': 'Crawl not found'}), 404
 
         # Check ownership
-        if user_id and crawl.get('user_id') != user_id:
+        if user_id and crawl.get('user_id') != user_id and session.get('tier') != 'admin':
             return jsonify({'success': False, 'error': 'Unauthorized'}), 403
 
         # Get current crawler instance
@@ -1204,7 +1204,7 @@ def delete_crawl_endpoint(crawl_id):
         if not crawl:
             return jsonify({'success': False, 'error': 'Crawl not found'}), 404
 
-        if user_id and crawl.get('user_id') != user_id:
+        if user_id and crawl.get('user_id') != user_id and session.get('tier') != 'admin':
             return jsonify({'success': False, 'error': 'Unauthorized'}), 403
 
         success = delete_crawl(crawl_id)
@@ -1225,7 +1225,7 @@ def archive_crawl(crawl_id):
         if not crawl:
             return jsonify({'success': False, 'error': 'Crawl not found'}), 404
 
-        if user_id and crawl.get('user_id') != user_id:
+        if user_id and crawl.get('user_id') != user_id and session.get('tier') != 'admin':
             return jsonify({'success': False, 'error': 'Unauthorized'}), 403
 
         success = set_crawl_status(crawl_id, 'archived')
