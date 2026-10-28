@@ -52,3 +52,8 @@ services:
     # Increase shared memory size for Chrome to prevent crashes
     shm_size: '2gb'
 
+    # Cap memory so one large crawl kills only this container, not every app on the host.
+    # Coolify's "Maximum Memory Limit" setting is not applied to Docker Compose apps.
+    mem_limit: 2560m
+    memswap_limit: 2560m
+
